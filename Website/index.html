@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>TWICE — Fan Tribute (Static)</title>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&family=Sacramento&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+  <div class="stage">
+    <header class="hero">
+      <div class="hero-inner">
+        <h1 class="title">TWICE — Fan Tribute</h1>
+        <p class="subtitle" id="greeting">Hello, ONCE!</p>
+        <p class="tag">A simple animated theme for ONCE</p>
+      </div>
+      <div class="glow"></div>
+      <div class="sparkles" aria-hidden="true"></div>
+    </header>
+
+    <main>
+      <section class="members" id="members">
+        <!-- JS will populate member cards -->
+      </section>
+    </main>
+    <!-- Light stick area -->
+    <div class="lightstick-wrap">
+      <div class="lightstick" id="lightstick" role="img" aria-label="TWICE lightstick">
+        <div class="stick-handle"></div>
+        <div class="stick-head">
+          <svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <defs>
+              <linearGradient id="g1" x1="0" x2="1">
+                <stop offset="0" stop-color="#fff" stop-opacity=".9" />
+                <stop offset="1" stop-color="#ffd2ec" stop-opacity=".9" />
+              </linearGradient>
+            </defs>
+            <circle cx="32" cy="24" r="14" fill="url(#g1)" />
+            <path d="M32 10 L36 24 L32 38 L28 24 Z" fill="#ff6fa3" opacity="0.08" />
+          </svg>
+        </div>
+      </div>
+      <footer class="foot">Built with love for ONCE · <span id="year"></span></footer>
+    </div>
+  </div>
+
+  <canvas id="confetti-canvas" aria-hidden="true"></canvas>
+  <script>
+    // Populate greeting and member list for static file
+    (function(){
+      const members = ['Nayeon','Jeongyeon','Momo','Sana','Jihyo','Mina','Dahyun','Chaeyoung','Tzuyu'];
+      const hour = new Date().getHours();
+      const greetingEl = document.getElementById('greeting');
+      const yearEl = document.getElementById('year');
+      if(hour < 12) greetingEl.textContent = 'Good morning, ONCE!';
+      else if(hour < 18) greetingEl.textContent = 'Good afternoon, ONCE!';
+      else greetingEl.textContent = 'Good evening, ONCE!';
+      yearEl.textContent = new Date().getFullYear();
+
+      const container = document.getElementById('members');
+      async function localOrRemote(name){
+        const slug = name.replace(/[^a-z0-9]+/ig, '-').toLowerCase();
+        const localPath = `assets/img/${name}.png`;
+        // try several common extensions
+        const exts = ['png','jpg','jpeg','webp','gif','svg'];
+        for(const e of exts){
+          const p = `assets/img/${slug}.${e}`;
+          try{
+            const res = await fetch(p, {method:'HEAD'});
+            if(res && res.ok) return p;
+          }catch(e){ /* ignore */ }
+        }
+        // fallback to initials avatar
+        const seed = encodeURIComponent(name);
+        return `https://ui-avatars.com/api/?name=${seed}&background=FFE6F2&color=FF6FA3&rounded=true&format=svg`;
+      }
+
+      (async function build(){
+        for(const m of members){
+          const src = await localOrRemote(m);
+          const article = document.createElement('article');
+          article.className = 'card';
+          article.innerHTML = `
+            <div class="avatar">
+              <img src="${src}" alt="${m} avatar" loading="lazy" decoding="async" onerror="(function(img){img.style.display='none'; var s = img.parentNode.querySelector('span'); if(s) s.style.display='flex'})(this)">
+              <span>${m.charAt(0)}</span>
+            </div>
+            <h3>${m}</h3>
+            <p class="role">TWICE member</p>
+            <button class="cheer" data-name="${m}">Cheer</button>
+          `;
+          container.appendChild(article);
+        }
+      })();
+    })();
+  </script>
+  <script src="assets/js/main.js"></script>
+</body>
+</html>
